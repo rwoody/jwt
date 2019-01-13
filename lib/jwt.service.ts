@@ -9,31 +9,50 @@ export class JwtService {
     @Inject(JWT_MODULE_OPTIONS) private readonly options: JwtModuleOptions
   ) {}
 
-  sign(payload: string | Object | Buffer, options?: jwt.SignOptions): string {
-    const signOptions = options
-      ? {
-          ...(this.options.signOptions || {}),
-          ...options
+  sign(
+    payload: string | Object | Buffer,
+    options?: jwt.SignOptions
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const signOptions = options
+        ? {
+            ...(this.options.signOptions || {}),
+            ...options
+          }
+        : this.options.signOptions;
+      return jwt.sign(
+        payload,
+        this.options.secretOrPrivateKey,
+        signOptions,
+        (err, token) => {
+          if (err) return reject(err);
+          resolve(token);
         }
-      : this.options.signOptions;
-    return jwt.sign(payload, this.options.secretOrPrivateKey, signOptions);
+      );
+    });
   }
 
   verify<T extends object = any>(
     token: string,
     options?: jwt.VerifyOptions
-  ): T {
-    const verifyOptions = options
-      ? {
-          ...(this.options.verifyOptions || {}),
-          ...options
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const verifyOptions = options
+        ? {
+            ...(this.options.verifyOptions || {}),
+            ...options
+          }
+        : this.options.verifyOptions;
+      return jwt.verify(
+        token,
+        this.options.publicKey || (this.options.secretOrPrivateKey as any),
+        verifyOptions,
+        (err, payload: T) => {
+          if (err) return reject(err);
+          resolve(payload);
         }
-      : this.options.verifyOptions;
-    return jwt.verify(
-      token,
-      this.options.publicKey || (this.options.secretOrPrivateKey as any),
-      verifyOptions
-    ) as T;
+      );
+    });
   }
 
   decode(

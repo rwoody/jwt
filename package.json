@@ -1,5 +1,5 @@
 {
-  "name": "@nestjs/jwt",
+  "name": "@rwoody/nestjs-jwt",
   "version": "0.2.1",
   "description": "Nest - modern, fast, powerful node.js web framework (@jwt)",
   "author": "Kamil Mysliwiec",
